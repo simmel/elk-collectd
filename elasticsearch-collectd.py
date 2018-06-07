@@ -185,11 +185,20 @@ def config_callback(config):
     elif config.key == "Name": node = str(config.values[0])
     elif config.key == "Timeout": timeout = int(config.values[0])
     else: collectd.warning("Elasticsearch plugin: Unknown config key "+config.key)
+    try:
+      import urlparse
+    except: # For Python 3
+      import urllib.parse as urlparse
+    a = urlparse.urlparse('http://localhost:9200/_nodes/stats')
+    b = list(a)
+    b[1] = "%s:%s" % (host, port)
+    a = urlparse.urlunparse(b)
+
     CONFIGS.append({
       "host": host,
       "port": port,
       "node": node,
-      "url_nodes": "http://"+host+":"+port+"/_node/stats",
+      "url_nodes": a,
       "url_cluster": "http://"+host+":"+port+"/_cluster/health",
       "timeout": timeout
     })
